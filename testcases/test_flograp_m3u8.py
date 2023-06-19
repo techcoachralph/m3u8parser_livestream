@@ -24,35 +24,52 @@ have it run through the m3u8 parser
 look through the featured video files on the watch page to verify they are functional
 '''
 # create the new instance of the driver
-options = Options()
-options.add_experimental_option("detach", True)
-options.page_load_strategy = 'eager'
+# options = Options()
+# options.add_experimental_option("detach", True)
+# options.page_load_strategy = 'eager'
 
 
+sw_options = {
+    'addr': '0.0.0.0',  # Address of the machine running Selenium Wire. Explicitly use 127.0.0.1 rather than localhost if remote session is running locally.
+    'auto_config': False,
+    'port': 8091
+}
 
-driver = webdriver.Chrome(
-    service=ChromeService(ChromeDriverManager().install()),
-    options=options
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument('--proxy-server=host.docker.internal:8091')
+chrome_options.add_argument('--ignore-certificate-errors')
+
+
+driver = webdriver.Remote(
+    command_executor="http://0.0.0.0:4444",
+    options=chrome_options,
+    seleniumwire_options=sw_options
     )
-
-driver.scopes = [
-    '.*cloudfront.net/.*/playlist.m3u8',
-]
 
 driver.implicitly_wait(15)
 driver.maximize_window()
 # navigate to a video on the Flo Grappling site
+print("Go to site")
 driver.get("https://www.flograppling.com")
+time.sleep(10)
+for request in driver.requests:
+    if request.response:
+        print(
+            request.url,
+            request.response.status_code,
+            request.response.headers['Content-Type']
+        )
 
 # click on watch
+print("Click on watch")
 driver.find_element(
     By.XPATH,
     "//flo-link[contains(@class,'aux-links-desktop')]"
     "//a[@data-test='flo-link']/button[@class='link-button']/span[.='Watch']").click()
 close_cookie_dialog = len(driver.find_elements(By.CSS_SELECTOR, "button.osano-cm-dialog__close"))
-if close_cookie_dialog > 0:
-    driver.find_element(By.CSS_SELECTOR, "button.osano-cm-dialog__close").click()
-time.sleep(10)
+# if close_cookie_dialog > 0:
+#     driver.find_element(By.CSS_SELECTOR, "button.osano-cm-dialog__close").click()
+# time.sleep(10)
 # click on a video
 # featured_video_thumbnail = WebDriverWait(driver, 20).until(
 #     ec.element_to_be_clickable((By.CSS_SELECTOR, "flo-featured-content-card flo-image-thumbnail"))
@@ -62,7 +79,9 @@ action = ActionChains(driver)
 # time.sleep(5)
 # featured_video_thumbnail.click()
 featured_video_thumbnail_list = driver.find_elements(By.CSS_SELECTOR, "h4.featured-content-card__title")
+
 try:
+    print("Click on 1st featured video")
     featured_video_thumbnail_list[0].click()
 except selenium.common.exceptions.ElementClickInterceptedException:
     print("Click intercepted")
