@@ -24,26 +24,49 @@ have it run through the m3u8 parser
 look through the featured video files on the watch page to verify they are functional
 '''
 # create the new instance of the driver
-options = Options()
-options.add_experimental_option("detach", True)
-options.page_load_strategy = 'eager'
 
 
-
-driver = webdriver.Chrome(
-    service=ChromeService(ChromeDriverManager().install()),
-    options=options
+should_run_locally = False
+if should_run_locally is True:
+    options = Options()
+    options.add_experimental_option("detach", True)
+    options.page_load_strategy = 'eager'
+    driver = webdriver.Chrome(
+        service=ChromeService(ChromeDriverManager().install()),
+        options=options
+        )
+else:
+    sw_options = {
+        'addr': '0.0.0.0',
+        'auto_config': False,
+        'port': 8091
+    }
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--proxy-server=host.docker.internal:8091')
+    chrome_options.add_argument('--ignore-certificate-errors')
+    driver = webdriver.Remote(
+        command_executor="0.0.0.0:4444",
+        options=chrome_options,
+        seleniumwire_options=sw_options
     )
 
-driver.scopes = [
-    '.*cloudfront.net/.*/playlist.m3u8',
-]
+# driver.scopes = [
+#     '.*cloudfront.net/.*/playlist.m3u8',
+# ]
 
 driver.implicitly_wait(15)
 driver.maximize_window()
 # navigate to a video on the Flo Grappling site
 driver.get("https://www.flograppling.com")
-
+time.sleep(10)
+for request in driver.requests:
+    if request.response:
+        # set the captured m3u8 file as the manifest uri variable
+        print(
+            request.url,
+            request.response.status_code,
+            request.response.headers['Content-Type']
+        )
 # click on watch
 driver.find_element(
     By.XPATH,
