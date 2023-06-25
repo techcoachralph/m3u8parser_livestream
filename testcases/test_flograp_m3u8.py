@@ -48,9 +48,9 @@ else:
         seleniumwire_options=sw_options
     )
 
-# driver.scopes = [
-#     '.*cloudfront.net/.*/playlist.m3u8',
-# ]
+driver.scopes = [
+    '.*cloudfront.net/.*/playlist.m3u8',
+]
 
 driver.implicitly_wait(15)
 driver.maximize_window()
@@ -105,7 +105,7 @@ for request in driver.requests:
         )
         manifest_uri = request.url
 
-
+print(manifest_uri)
 # manifest_uri = 'http://d17cyqyz9yhmep.cloudfront.net/streams/94032/playlist_1679767642220_1679768011421.m3u8'
 ralph_gets_destroyed_in_bjj_playlist = m3u8.load(manifest_uri)
 print("Variant Manifest URI:")
