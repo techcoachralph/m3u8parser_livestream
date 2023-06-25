@@ -72,7 +72,10 @@ driver.find_element(
     "//a[@data-test='flo-link']/button[@class='link-button']/span[.='Watch']").click()
 close_cookie_dialog = len(driver.find_elements(By.CSS_SELECTOR, "button.osano-cm-dialog__close"))
 if close_cookie_dialog > 0:
-    driver.find_element(By.CSS_SELECTOR, "button.osano-cm-dialog__close").click()
+    try:
+        driver.find_element(By.CSS_SELECTOR, "button.osano-cm-dialog__close").click()
+    except selenium.common.exceptions.ElementNotInteractableException:
+        print("continuing to next step")
 time.sleep(10)
 # click on a video
 # featured_video_thumbnail = WebDriverWait(driver, 20).until(
