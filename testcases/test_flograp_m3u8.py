@@ -27,7 +27,7 @@ look through the featured video files on the watch page to verify they are funct
 should_run_locally = False
 if should_run_locally is True:
     options = Options()
-    options.add_experimental_option("detach", True)
+    # options.add_experimental_option("detach", True)
     options.page_load_strategy = 'eager'
     driver = webdriver.Chrome(
         service=ChromeService(ChromeDriverManager().install()),
@@ -103,7 +103,7 @@ time.sleep(60)
 #         manifest_uri = request.url
 
 
-# manifest_uri = 'http://d17cyqyz9yhmep.cloudfront.net/streams/94032/playlist_1679767642220_1679768011421.m3u8'
+manifest_uri = 'http://d17cyqyz9yhmep.cloudfront.net/streams/94032/playlist_1679767642220_1679768011421.m3u8'
 ralph_gets_destroyed_in_bjj_playlist = m3u8.load(manifest_uri)
 print("Variant Manifest URI:")
 print(manifest_uri)
