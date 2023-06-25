@@ -57,14 +57,14 @@ driver.maximize_window()
 # navigate to a video on the Flo Grappling site
 driver.get("https://www.flograppling.com")
 time.sleep(10)
-# for request in driver.requests:
-#     if request.response:
-#         # set the captured m3u8 file as the manifest uri variable
-#         print(
-#             request.url,
-#             request.response.status_code,
-#             request.response.headers['Content-Type']
-#         )
+for request in driver.requests:
+    if request.response:
+        # set the captured m3u8 file as the manifest uri variable
+        print(
+            request.url,
+            request.response.status_code,
+            request.response.headers['Content-Type']
+        )
 # click on watch
 driver.find_element(
     By.XPATH,
@@ -92,18 +92,18 @@ except selenium.common.exceptions.ElementClickInterceptedException:
 # driver.execute_script("arguments[0].click", featured_video_thumbnail)
 # use selenium wire to capture the m3u8 file
 time.sleep(60)
-# for request in driver.requests:
-#     if request.response:
-#         # set the captured m3u8 file as the manifest uri variable
-#         print(
-#             request.url,
-#             request.response.status_code,
-#             request.response.headers['Content-Type']
-#         )
-#         manifest_uri = request.url
+for request in driver.requests:
+    if request.response:
+        # set the captured m3u8 file as the manifest uri variable
+        print(
+            request.url,
+            request.response.status_code,
+            request.response.headers['Content-Type']
+        )
+        manifest_uri = request.url
 
 
-manifest_uri = 'http://d17cyqyz9yhmep.cloudfront.net/streams/94032/playlist_1679767642220_1679768011421.m3u8'
+# manifest_uri = 'http://d17cyqyz9yhmep.cloudfront.net/streams/94032/playlist_1679767642220_1679768011421.m3u8'
 ralph_gets_destroyed_in_bjj_playlist = m3u8.load(manifest_uri)
 print("Variant Manifest URI:")
 print(manifest_uri)
