@@ -3,3 +3,5 @@ selenium-wire
 m3u8
 webdriver-manager
 requests
+boto3
+selenium
