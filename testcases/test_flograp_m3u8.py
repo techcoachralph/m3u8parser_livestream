@@ -3,6 +3,10 @@ import time
 import requests
 import m3u8
 import selenium
+import boto3
+
+# native webdriver
+from selenium import webdriver as n_webdriver
 
 # selenium-wire import
 from seleniumwire import webdriver
@@ -23,6 +27,12 @@ look through the featured video files on the watch page to verify they are funct
 '''
 # create the new instance of the driver
 
+# device farm settings
+devicefarm_client = boto3.client("devicefarm", region_name="us-west-2")
+testgrid_url_response = devicefarm_client.create_test_grid_url(
+    projectArn="arn:aws:devicefarm:us-west-2:810639563432:testgrid-project:96f70163-7a12-439b-8453-d0a23736fb47",
+    expiresInSeconds=300)
+print(testgrid_url_response)
 
 should_run_locally = False
 if should_run_locally is True:
@@ -35,15 +45,15 @@ if should_run_locally is True:
         )
 else:
     sw_options = {
-        'addr': '0.0.0.0',
+        'addr': 'ec2-3-83-89-69.compute-1.amazonaws.com',
         'auto_config': False,
         'port': 8091
     }
     chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--proxy-server=host.docker.internal:8091')
+    chrome_options.add_argument('--proxy-server=ec2-3-83-89-69.compute-1.amazonaws.com:8091')
     chrome_options.add_argument('--ignore-certificate-errors')
     driver = webdriver.Remote(
-        command_executor="0.0.0.0:4444",
+        command_executor=testgrid_url_response["url"],
         options=chrome_options,
         seleniumwire_options=sw_options
     )
@@ -55,6 +65,7 @@ driver.scopes = [
 driver.implicitly_wait(15)
 driver.maximize_window()
 # navigate to a video on the Flo Grappling site
+print("go to home page")
 driver.get("https://www.flograppling.com")
 time.sleep(10)
 for request in driver.requests:
@@ -66,6 +77,7 @@ for request in driver.requests:
             request.response.headers['Content-Type']
         )
 # click on watch
+print("click on watch link")
 driver.find_element(
     By.XPATH,
     "//flo-link[contains(@class,'aux-links-desktop')]"
@@ -74,6 +86,7 @@ close_cookie_dialog = len(driver.find_elements(By.CSS_SELECTOR, "button.osano-cm
 if close_cookie_dialog > 0:
     try:
         driver.find_element(By.CSS_SELECTOR, "button.osano-cm-dialog__close").click()
+        print("close cookies pop up")
     except selenium.common.exceptions.ElementNotInteractableException:
         print("continuing to next step")
 time.sleep(10)
@@ -87,6 +100,7 @@ action = ActionChains(driver)
 # featured_video_thumbnail.click()
 featured_video_thumbnail_list = driver.find_elements(By.CSS_SELECTOR, "h4.featured-content-card__title")
 try:
+    print("Click first featured thumbnail")
     featured_video_thumbnail_list[0].click()
 except selenium.common.exceptions.ElementClickInterceptedException:
     print("Click intercepted")
